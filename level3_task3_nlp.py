@@ -25,21 +25,15 @@ def preprocess(text):
     return [lemmatizer.lemmatize(t) for t in tokens]
 
 
-# This cleaned/lemmatized text is used ONLY for the word-frequency /
-# word-cloud step below - word frequency should ignore filler words
-# like "the"/"and".
+# Cleaned tokens are for the word cloud.
 df['tokens'] = df['Text'].apply(preprocess)
 df['clean_text'] = df['tokens'].apply(lambda t: ' '.join(t))
 
-# VADER scores the ORIGINAL text, not the cleaned version. It's a
-# rule-based lexicon that reads punctuation ("!!!") and capitalization
-# ("AMAZING") as intensity signals, so stripping those first would make
-# it LESS accurate, not more.
+# VADER scores the original text.
 sia = SentimentIntensityAnalyzer()
 df['compound'] = df['Text'].apply(lambda t: sia.polarity_scores(str(t))['compound'])
 
-# These thresholds (+/- 0.05) are VADER's own documented cutoffs for
-# classifying positive/negative vs. neutral.
+# Standard VADER thresholds.
 df['Predicted_Sentiment'] = df['compound'].apply(
     lambda c: 'Positive' if c >= 0.05 else ('Negative' if c <= -0.05 else 'Neutral')
 )

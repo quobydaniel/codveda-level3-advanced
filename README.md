@@ -1,31 +1,73 @@
-# Codveda Level 3 — Advanced (Data Analytics Internship)
+# Codveda Level 3 — Advanced
 
-Daniel Quoby Soglo · quobydaniels@gmail.com
+Level 3 of the Codveda internship: classification, a dashboard, and NLP.
 
-Three tasks on the **Telecom churn** and **Sentiment** datasets. All run end-to-end; numbers are real output.
+## Task 1 — Classification (`level3_task1_classification.py`)
 
-## Tasks
+Telecom churn prediction using Codveda's own 80/20 train/test split.
 
-### 1. Predictive Modeling — Classification (`level3_task1_classification.py`)
-- Dataset: Telecom customer churn (Codveda 80/20 split).
-- LabelEncoder (train-only fit), StandardScaler, Logistic Regression / Decision Tree / Random Forest, grid search on RF.
-- **Result (F1 / accuracy):** LR 0.258/0.853 · DT 0.715/0.918 · RF 0.775/0.946 · **Tuned RF 0.826/0.955** (`max_depth=20, min_samples_split=5, n_estimators=100`).
+I encoded the categorical columns (State, International plan, Voice mail
+plan) with LabelEncoder fit on the training set only, then transformed the
+test set — fitting separately would let the category codes drift between
+the two.
 
-### 3. NLP — Sentiment Analysis (`level3_task3_nlp.py`)
-- Dataset: cleaned sentiment data (Level 1 output).
-- Tokenize/stopword/lemmatize; VADER on original text (±0.05 thresholds); word cloud.
-- **Result:** Positive 443 · Negative 185 · Neutral 82.
+Compared three models:
 
-### 2. Interactive Dashboard — Streamlit ✅
-- **Status:** completed with a self-hosted Streamlit dashboard (`level3_task2_dashboard.py`) — Linux-friendly equivalent of Power BI/Tableau.
-- **What it does:** loads the cleaned sentiment data, computes 3-class sentiment via VADER, and shows interactive charts — sentiment distribution, top emotions, likes per year, retweets vs likes, engagement by platform — all filterable from the sidebar.
-- **Verified:** boots clean (`streamlit run` → health check `ok`); 3-class sentiment matches Task 3 (443 Positive / 185 Negative / 82 Neutral).
-- **Alternative:** Tableau Public (`L3_TASK2_TABLEAU_GUIDE.md`) for a publishable dashboard-with-URL if you prefer the named tool.
+| Model | Accuracy | F1 |
+|---|---|---|
+| Logistic Regression | 0.853 | 0.258 |
+| Decision Tree | 0.918 | 0.715 |
+| Random Forest | 0.946 | 0.775 |
+| Random Forest (tuned) | **0.955** | **0.826** |
 
-## Charts
-All PNGs under `plots/`.
+The tuned random forest used max_depth=20, min_samples_split=5,
+n_estimators=100, chosen by grid search with 3-fold CV on F1.
 
-## Reproduce
+Accuracy is the wrong headline metric here — only about 14% of customers
+churn, so predicting "no churn" every time scores ~86% accuracy while
+being useless. F1 is what I paid attention to.
+
+## Task 2 — Dashboard (`level3_task2_dashboard.py`)
+
+The brief said Power BI or Tableau. Power BI doesn't run on Linux, so I
+built the dashboard in Streamlit instead — same job, works on my machine.
+
+It loads the cleaned sentiment data, computes a 3-class sentiment
+(positive / negative / neutral) with VADER, and shows:
+
+- sentiment distribution (443 positive, 185 negative, 82 neutral)
+- top emotions
+- likes per year
+- retweets vs likes
+- engagement by platform
+
+All of it is filterable from the sidebar (sentiment, platform, year).
+
+Run it with:
+
+```bash
+streamlit run level3_task2_dashboard.py
+```
+
+(from the parent folder, since it reads `level1_basic/cleaned_sentiment_dataset.csv`)
+
+If you'd rather see it in Tableau, there's a guide in
+`L3_TASK2_TABLEAU_GUIDE.md`.
+
+## Task 3 — NLP Sentiment Analysis (`level3_task3_nlp.py`)
+
+Tokenized, removed stopwords and lemmatized the text with nltk, then scored
+sentiment with VADER.
+
+One detail that mattered: I scored the *original* text, not the cleaned
+tokens. VADER reads punctuation and capitalisation as intensity signals
+("great!!!" scores higher than "great"), so stripping those first makes it
+less accurate, not more.
+
+Results: 443 positive, 185 negative, 82 neutral.
+
+## Running
+
 ```bash
 python3 -m venv venv && source venv/bin/activate
 pip install pandas numpy matplotlib scikit-learn nltk wordcloud
@@ -34,4 +76,4 @@ python3 level3_task1_classification.py
 python3 level3_task3_nlp.py
 ```
 
-*Raw datasets ship in the parent Codveda bundle (`data/`). Copy them next to this folder to run.*
+The raw CSVs are in the parent `data/` folder of the main project.

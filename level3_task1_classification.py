@@ -12,8 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Codveda already split this dataset 80/20 - use their split rather than
-# making your own, so the evaluation matches how the assignment intends it.
+# Codveda provides an 80/20 split already.
 train = pd.read_csv('../data/churn-bigml-80.csv')
 test = pd.read_csv('../data/churn-bigml-20.csv')
 print("Train:", train.shape, "| Test:", test.shape)
@@ -29,9 +28,7 @@ def preprocess(df, encoders=None, fit=False):
             df[col] = le.fit_transform(df[col])
             encoders[col] = le
     else:
-        # Fit only on train, then reuse (.transform, not .fit_transform) on
-        # test - fitting separately on test would let category codes drift
-        # between the two sets.
+        # Fit encoders on train only, reuse on test.
         for col in cat_cols:
             df[col] = encoders[col].transform(df[col])
     df['Churn'] = df['Churn'].astype(int)
@@ -58,9 +55,7 @@ results = []
 for name, m in models.items():
     m.fit(X_train_s, y_train)
     preds = m.predict(X_test_s)
-    # Precision/recall/F1 matter more than accuracy here: churn is a
-    # minority class, so a model that just predicts "no churn" every time
-    # would still score high accuracy while being useless.
+    # F1 matters more than accuracy - churn is a minority class.
     results.append({
         'Model': name,
         'Accuracy': accuracy_score(y_test, preds),
