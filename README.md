@@ -16,8 +16,11 @@ Three tasks on the **Telecom churn** and **Sentiment** datasets. All run end-to-
 - Tokenize/stopword/lemmatize; VADER on original text (±0.05 thresholds); word cloud.
 - **Result:** Positive 443 · Negative 185 · Neutral 82.
 
-### 2. Power BI / Tableau Dashboard — deferred
-- Windows/Mac-only software; not runnable on Ubuntu. Completed separately on Windows / Tableau Public.
+### 2. Interactive Dashboard — Streamlit ✅
+- **Status:** completed with a self-hosted Streamlit dashboard (`level3_task2_dashboard.py`) — Linux-friendly equivalent of Power BI/Tableau.
+- **What it does:** loads the cleaned sentiment data, computes 3-class sentiment via VADER, and shows interactive charts — sentiment distribution, top emotions, likes per year, retweets vs likes, engagement by platform — all filterable from the sidebar.
+- **Verified:** boots clean (`streamlit run` → health check `ok`); 3-class sentiment matches Task 3 (443 Positive / 185 Negative / 82 Neutral).
+- **Alternative:** Tableau Public (`L3_TASK2_TABLEAU_GUIDE.md`) for a publishable dashboard-with-URL if you prefer the named tool.
 
 ## Charts
 All PNGs under `plots/`.
